@@ -11,8 +11,6 @@ import (
 	"time"
 )
 
-var db *gorm.DB
-
 /*
 ORM 允许通过一个现有的数据库连接来初始化 *gorm.DB
 import (
@@ -41,9 +39,9 @@ import (
 	  Conn: sqlDB,
 	}), &gorm.Config{})
 */
-func SetupDB(dbtype, dsn string, firstcreate interface{}, inittables ...interface{}) (err error) {
+func SetupDB(dbtype, dsn string, inittables ...interface{}) (db *gorm.DB, err error) {
 	if dsn == "" {
-		return fmt.Errorf("you should given a the driver's datasource to connect")
+		return nil, fmt.Errorf("you should given a the driver's datasource to connect")
 	}
 	switch dbtype {
 	case "mysql":
@@ -61,7 +59,7 @@ func SetupDB(dbtype, dsn string, firstcreate interface{}, inittables ...interfac
 		//dsn = "host=localhost user=gorm password=gorm dbname=gorm port=9920 sslmode=disable TimeZone=Asia/Shanghai"
 		//db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 		//使用 pgx 作为 postgres 的 database/sql 驱动，默认情况下，它会启用 prepared statement 缓存，可以这样禁用它：
-		dsn = "user=gorm password=gorm dbname=gorm port=9920 sslmode=disable TimeZone=Asia/Shanghai"
+		//dsn = "user=gorm password=gorm dbname=gorm port=9920 sslmode=disable TimeZone=Asia/Shanghai"
 		db, err = gorm.Open(postgres.New(postgres.Config{
 			DSN:                  dsn,
 			PreferSimpleProtocol: true, // disables implicit prepared statement usage
@@ -78,7 +76,7 @@ func SetupDB(dbtype, dsn string, firstcreate interface{}, inittables ...interfac
 	//database/sql维护连接池
 	sqlDB, err := db.DB()
 	if err != nil {
-		err = fmt.Errorf("failed to connect database, got error %v", err)
+		err = fmt.Errorf("failed to connect database, got error = %v", err)
 		return
 	}
 	sqlDB.SetMaxIdleConns(10)           //空闲连接池中的最大连接数
@@ -97,19 +95,25 @@ func SetupDB(dbtype, dsn string, firstcreate interface{}, inittables ...interfac
 		}
 	}
 
-	//some data create first
-	db.FirstOrCreate(firstcreate)
-
 	return
 }
 
-func CloseDB() error {
+// FirstOrCreate some data create first
+func FirstOrCreate(db *gorm.DB, firsts ...interface{}) error {
+	for _, dbdata := range firsts {
+		db.FirstOrCreate(dbdata)
+	}
+	return nil
+}
+
+// CloseDB close db
+func CloseDB(db *gorm.DB) error {
 	sqldb, err := db.DB()
 	if err != nil {
-		return fmt.Errorf("cannot get a impl for db-conn, close err=%v", err)
+		return fmt.Errorf("cannot get a impl for db-conn, close db err = %v", err)
 	}
 	if err = sqldb.Close(); err != nil {
-		return fmt.Errorf("close db err=%v", err)
+		return fmt.Errorf("close db err = %v", err)
 	}
 	return nil
 }
