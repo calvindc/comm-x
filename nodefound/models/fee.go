@@ -122,7 +122,7 @@ func UpdateAccountTokenFee(account, token common.Address, fee *Fee, db *gorm.DB)
 		Account: account.String(),
 	}
 
-	err := db.Where(atf).Find(atf).Error
+	err := db.Find(&AccountTokenFee{}, "account=? and token=?", atf.Account, atf.Token).Error
 	atf.FeePolicy = fee.FeePolicy
 	atf.FeeConstantPart = bigInt2String(fee.FeeConstant)
 	atf.FeePercentPart = fee.FeePercent

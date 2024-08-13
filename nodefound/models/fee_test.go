@@ -42,6 +42,7 @@ func TestGetAccountFeePolicy(t *testing.T) {
 		t.Logf("setupDB err %s", err)
 	}
 	address := utils.NewRandomAddress()
+
 	fee := GetAccountFeePolicy(address, vdb)
 	if fee.FeePolicy != config.DefaultFeePolicy || fee.FeePercent != config.DefaultFeePercentPart {
 		t.Errorf("not equal default")
@@ -72,6 +73,26 @@ func TestGetAccountFeePolicy(t *testing.T) {
 		return
 	}
 
+	//============
+	token := utils.NewRandomAddress()
+	err = UpdateAccountTokenFee(address, token, fee, vdb)
+	if err != nil {
+		t.Errorf("UpdateAccountTokenFee err %s", err)
+		return
+	}
+
+	fee3, err := GetAccountTokenFee(address, token, vdb)
+	if err != nil {
+		t.Errorf("GetAccountTokenFee err= %s", err)
+		return
+	}
+
+	if !reflect.DeepEqual(fee, fee3) {
+		t.Errorf("equal for GetAccountTokenFee err")
+
+		return
+	}
+	t.Log(fee3.FeePolicy, fee3.FeePercent, fee3.FeeConstant)
 	//============
 	err = DeleteAccountAllFeeRate(address, vdb)
 	if err != nil {

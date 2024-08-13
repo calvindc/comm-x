@@ -1,17 +1,10 @@
 package blockchainlisten
 
 import (
-	"bytes"
-	"fmt"
-	"math"
-	"math/big"
-	"sort"
-	"sync"
-	"time"
-
-	"errors"
-
+	"github.com/calvindc/comm-x/nodefound/models"
 	"github.com/ethereum/go-ethereum/common"
+	"math/big"
+	"sync"
 )
 
 type channel struct {
@@ -19,18 +12,8 @@ type channel struct {
 	Participant2        common.Address
 	Participant1Balance *big.Int
 	Participant2Balance *big.Int
-	Participant1Fee     *model.Fee
-	Participant2Fee     *model.Fee
-	Token               common.Address
-}
-
-type channel struct {
-	Participant1        common.Address
-	Participant2        common.Address
-	Participant1Balance *big.Int
-	Participant2Balance *big.Int
-	Participant1Fee     *model.Fee
-	Participant2Fee     *model.Fee
+	Participant1Fee     *models.Fee
+	Participant2Fee     *models.Fee
 	Token               common.Address
 }
 

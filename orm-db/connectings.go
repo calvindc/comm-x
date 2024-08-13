@@ -85,7 +85,7 @@ func SetupDB(dbtype, dsn string, inittables ...interface{}) (db *gorm.DB, err er
 	sqlDB.SetConnMaxIdleTime(0)         //连接可能空闲的最长时间
 
 	//loger
-	db.Logger.LogMode(logger.Warn)
+	db.Logger.LogMode(logger.Info)
 
 	//migrate table(create table first)
 	for _, table := range inittables {
